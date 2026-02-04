@@ -1,16 +1,17 @@
-# Frontend Developer Technical Test
+# Book Checkout System
 
-## Book Checkout System
+A React TypeScript application for borrowing books from a library with comprehensive error handling and user feedback.
 
-Build a book checkout feature that handles different user states and API errors with appropriate UI feedback.
+## How to Run the Project
 
-**Stack:** React 18+ with TypeScript
+### Prerequisites
 
----
+- Node.js 18+ installed
+- npm or yarn package manager
 
-## Setup
+### Installation & Setup
 
-Clone this repository and start the mock API:
+#### 1. Start the Mock API
 
 ```bash
 cd api
@@ -18,116 +19,91 @@ npm install
 npm start
 ```
 
-The API will run at `http://localhost:3001`
+The API will be available at `http://localhost:3001`
 
----
+#### 2. Start the React Application (in a new terminal)
 
-## The Challenge
-
-Users can "borrow" books from a library. The API returns different errors based on the user's account status. Your UI must handle each case with the correct modal or feedback.
-
----
-
-## Requirements
-
-### 1. Fetch and Display Books
-
-Fetch books from the API and display them in a grid with: cover, title, author, and a "Borrow" button.
-
-### 2. Handle the Borrow Action
-
-When clicking "Borrow", call the API. It randomly returns:
-
-```typescript
-type BorrowResult =
-  | { success: true }
-  | { success: false; error: "ACCOUNT_SUSPENDED" }
-  | { success: false; error: "LIMIT_REACHED" }
-  | { success: false; error: "BOOK_UNAVAILABLE" };
+```bash
+cd app
+npm install
+npm run dev
 ```
 
-### 3. Show Different Modals Based on Error
+The app will be available at `http://localhost:5173` (or the port shown in terminal)
 
-| Error | Modal Title | Modal Message | Button |
-|-------|-------------|---------------|--------|
-| `ACCOUNT_SUSPENDED` | Account Suspended | Your account is suspended. Contact support to resolve this issue. | Contact Support |
-| `LIMIT_REACHED` | Limit Reached | You've reached your borrowing limit. Return a book to borrow more. | View My Books |
-| `BOOK_UNAVAILABLE` | Unavailable | This book is currently unavailable. Try again later. | Close |
+## How to Run Tests
 
-**On success:** Show inline feedback on the button (e.g., "Borrowed!" or checkmark) - no modal.
-
-### 4. Loading States
-
-- Show loading indicator on the button while request is pending
-- Disable the button during the request
-
-### 5. Write Tests
-
-Write **at least 2 tests**. Examples:
-- Modal shows correct content for `ACCOUNT_SUSPENDED`
-- Modal shows correct content for `LIMIT_REACHED`
-- Button shows loading state during request
-- Success shows "Borrowed!" feedback
-
----
-
-## API Reference
-
-**Base URL:** `http://localhost:3001`
-
-### GET /books
-
-Returns list of books.
-
-```typescript
-type Book = {
-  id: string;
-  title: string;
-  author: string;
-  coverUrl: string;
-};
-
-// Response: Book[]
+```bash
+cd app
+npm test
 ```
 
-### POST /borrow/:id
+## Approach
 
-Attempts to borrow a book. Randomly returns success or error.
+### Architecture Overview
 
-```typescript
-// Success (200)
-{ success: true }
+The application follows a clean component-based architecture with clear separation of concerns:
 
-// Error (400)
-{ success: false, error: "ACCOUNT_SUSPENDED" | "LIMIT_REACHED" | "BOOK_UNAVAILABLE" }
-```
+#### API Layer
+- Centralized HTTP requests using Axios
+- Type-safe responses with TypeScript
+- Handles both success and error states from the API
+
+#### Component Structure
+- **BooksPage**: Main container managing application state and business logic
+- **Modal Components**: Three reusable modals for different error states (Account Suspended, Limit Reached, Book Unavailable)
+- **ModalHeader**: Shared wrapper component following DRY principle
+
+#### State Management
+- React hooks for local state management
+- Separate states for loading indicators, errors, and modal visibility
+- Set data structure for efficient O(1) lookup of borrowed books
+- Optimistic UI updates with 3-second timeout for success feedback
+
+#### Type Safety
+- Comprehensive TypeScript types for all data structures
+- Discriminated unions for API responses
+- No `any` types used throughout the codebase
+
+### Key Design Decisions
+
+**Material-UI**: Chosen for consistent, professional UI components with built-in accessibility.
+
+**Axios over Fetch**: Better error handling and automatic JSON transformation. Crucially, converts HTTP 400 errors (business logic errors) into valid application states.
+
+**Set for Borrowed Books**: O(1) lookup performance is more efficient than array iteration when checking if a book is borrowed.
+
+**Separate Modal Components**: Each error modal in its own file improves maintainability and follows single responsibility principle.
+
+**3-Second Success Feedback**: Provides adequate time for users to see confirmation before automatically resetting to allow another action.
+
+### Testing Strategy
+
+- **Unit Tests**: Components tested in isolation with mocked API calls
+- **Async Handling**: Proper use of `waitFor` for testing asynchronous operations
+- **User Interactions**: Tests simulate actual user flows (clicking buttons, seeing feedback)
+- Two comprehensive tests implemented:
+  1. Modal displays correct content when account is suspended
+  2. Button shows loading state during request and "Borrowed!" feedback on success
+
+### Error Handling
+
+The application handles three distinct error states returned by the API:
+- **ACCOUNT_SUSPENDED**: Shows modal prompting user to contact support
+- **LIMIT_REACHED**: Shows modal suggesting user to view their borrowed books
+- **BOOK_UNAVAILABLE**: Shows modal asking user to try again later
+
+Success states show inline feedback ("Borrowed!" with green button) that auto-dismisses after 3 seconds.
+
+### Tech Stack
+
+- React 18+ with TypeScript
+- Material-UI (MUI) for UI components
+- Axios for HTTP requests
+- Vite as build tool
+- Jest + React Testing Library for testing
 
 ---
 
-## What We Evaluate
-
-| What | We Look For |
-|------|-------------|
-| **It works** | Requirements are met, edge cases handled |
-| **Code quality** | Clean, readable, well-organized |
-| **TypeScript** | Proper types, no `any` |
-| **Tests** | At least 2 meaningful tests that pass |
-| **Independence** | You figured it out without hand-holding |
-
----
-
-## Submission
-
-1. Fork this repository
-2. Create your React app in a `/app` folder
-3. Include a README in `/app` explaining:
-   - How to run your project
-   - How to run tests
-   - Your approach (brief)
-4. Send us the link to your fork
-
----
-
-## Questions?
-
-If unclear, ask. We value people who ask good questions over those who assume.
+**Author**: Carlos Trevejo 
+**Date**: February 2026
